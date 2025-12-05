@@ -11,3 +11,4 @@ python-multipart
 starlette
 httpx
 orjson
+gunicorn
