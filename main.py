@@ -37,15 +37,39 @@ async def login():
 @app.get("/auth/callback")
 async def auth_callback(code: str, request: Request):
     async with httpx.AsyncClient() as client:
-        data = {"client_id": os.getenv("CLIENT_ID"), "client_secret": os.getenv("CLIENT_SECRET"), "grant_type": "authorization_code", "code": code, "redirect_uri": os.getenv("REDIRECT_URI")}
-        r = await client.post("https://discord.com/api/oauth2/token", data=data)
-        if r.status_code != 200: return HTMLResponse("Discord Auth Failed", 400)
+        data = {
+            "client_id": os.getenv("CLIENT_ID"),
+            "client_secret": os.getenv("CLIENT_SECRET"),
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": os.getenv("REDIRECT_URI")
+        }
+
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+
+        r = await client.post(
+            "https://discord.com/api/oauth2/token",
+            data=data,
+            headers=headers
+        )
+
+        if r.status_code != 200:
+            return HTMLResponse(f"Discord Auth Failed<br>{r.text}", 400)
+
         tokens = r.json()
-        
-        u = await client.get("https://discord.com/api/users/@me", headers={"Authorization": f"Bearer {tokens['access_token']}"})
+
+        u = await client.get(
+            "https://discord.com/api/users/@me",
+            headers={"Authorization": f"Bearer {tokens['access_token']}"}
+        )
+
         request.session["user"] = u.json()
         request.session["token"] = tokens["access_token"]
+
     return RedirectResponse("/dashboard")
+
 
 @app.get("/logout")
 async def logout(request: Request):
@@ -167,4 +191,5 @@ register_tortoise(app, db_url=os.getenv("DATABASE_URL"), modules={"models": ["mo
 
 @app.on_event("startup")
 async def startup():
+
     asyncio.create_task(bot_instance.start(os.getenv("DISCORD_TOKEN")))
