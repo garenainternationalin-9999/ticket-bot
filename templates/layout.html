@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketBot Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; }</style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <nav class="bg-slate-800 p-4 shadow-lg flex justify-between items-center">
+        <div class="text-xl font-bold text-blue-400">🎫 TicketBot Pro</div>
+        {% if user %}
+        <div class="flex gap-4 items-center">
+            <img src="https://cdn.discordapp.com/avatars/{{user.id}}/{{user.avatar}}.png" class="w-8 h-8 rounded-full">
+            <span>{{ user.username }}</span>
+            <a href="/logout" class="text-red-400 hover:text-red-300">Logout</a>
+        </div>
+        {% endif %}
+    </nav>
+    <main class="flex-grow p-6">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="p-4 text-center text-slate-500 text-sm">Dashboard Controlled Bot System</footer>
+</body>
+</html>

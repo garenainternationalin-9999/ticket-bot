@@ -1,0 +1,233 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-7xl mx-auto pb-20">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
+            Neutron Control: {{ guild.name }}
+        </h2>
+        <a href="/dashboard" class="px-5 py-2 bg-slate-700 rounded-full hover:bg-slate-600 transition font-medium text-white">← Dashboard</a>
+    </div>
+
+    <!-- Create Panel Card -->
+    <div class="bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden mb-12">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-8 py-5 border-b border-slate-700">
+            <h3 class="text-xl font-bold text-white">✨ Create New Ticket Panel</h3>
+        </div>
+        
+        <form action="/dashboard/{{ guild.id }}/create_panel" method="POST" class="p-8 grid grid-cols-1 lg:grid-cols-2 gap-10">
+            
+            <!-- LEFT: Content -->
+            <div class="space-y-6">
+                <h4 class="text-blue-400 font-bold uppercase text-xs tracking-wider border-b border-slate-700 pb-2">Embed Content</h4>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Panel Title</label>
+                    <input type="text" name="title" required class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500" placeholder="e.g. Support Center">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Description</label>
+                    <textarea name="description" rows="3" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">Click below to open a ticket.</textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Thumbnail URL</label>
+                        <input type="url" name="thumbnail_url" placeholder="https://..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Banner URL</label>
+                        <input type="url" name="banner_url" placeholder="https://..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Settings -->
+            <div class="space-y-6">
+                <h4 class="text-purple-400 font-bold uppercase text-xs tracking-wider border-b border-slate-700 pb-2">Settings</h4>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-1">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Emoji</label>
+                        <div class="flex gap-2">
+                            <input type="text" name="button_emoji" id="main_emoji_input" value="📩" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-center text-white focus:outline-none focus:border-blue-500">
+                            <button type="button" onclick="openEmojiPicker('main_emoji_input')" class="bg-slate-700 hover:bg-slate-600 text-white px-3 rounded-lg text-lg">😀</button>
+                        </div>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Button Text</label>
+                        <input type="text" name="button_text" value="Open Ticket" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Color Selector -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Button Color</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="button_color" value="blurple" checked class="peer sr-only">
+                            <div class="p-2 rounded text-center text-xs font-bold text-white bg-indigo-600 peer-checked:ring-2 peer-checked:ring-white">Blurple</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="button_color" value="gray" class="peer sr-only">
+                            <div class="p-2 rounded text-center text-xs font-bold text-white bg-gray-600 peer-checked:ring-2 peer-checked:ring-white">Gray</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="button_color" value="green" class="peer sr-only">
+                            <div class="p-2 rounded text-center text-xs font-bold text-white bg-green-600 peer-checked:ring-2 peer-checked:ring-white">Green</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="button_color" value="red" class="peer sr-only">
+                            <div class="p-2 rounded text-center text-xs font-bold text-white bg-red-600 peer-checked:ring-2 peer-checked:ring-white">Red</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Target Channel</label>
+                    <select name="channel_id" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
+                        {% for c in channels %}
+                        <option value="{{ c.id }}">#{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- ROLES -->
+            <div class="lg:col-span-2 space-y-3">
+                <label class="block text-sm font-medium text-slate-300">Staff Roles</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-2 bg-slate-900 rounded-lg border border-slate-700 custom-scrollbar">
+                    {% for r in roles %}
+                    <label class="cursor-pointer group relative">
+                        <input type="checkbox" name="staff_roles" value="{{ r.id }}" class="peer sr-only">
+                        <div class="p-3 rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 transition peer-checked:border-blue-500 peer-checked:bg-blue-900/30">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full shadow-sm" style="background-color: {{ r.color }};"></span>
+                                <span class="text-sm font-medium text-white truncate">{{ r.name }}</span>
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- DROPDOWNS -->
+            <div class="lg:col-span-2 pt-6 border-t border-slate-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-green-400 font-bold uppercase text-xs tracking-wider">Dropdown Options (Optional)</h4>
+                    <button type="button" onclick="addDropdownRow()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-white transition">+ Add Option</button>
+                </div>
+                <div id="dropdown-container" class="space-y-3"></div>
+            </div>
+
+            <div class="lg:col-span-2 pt-4 flex justify-end">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-xl font-bold shadow-xl transition transform hover:-translate-y-1">
+                    Deploy Panel 🚀
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Panels -->
+    <h3 class="text-xl font-bold mb-6 text-white pl-2 border-l-4 border-blue-500">Active Panels</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for panel in panels %}
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-blue-500 transition shadow-lg flex flex-col">
+            <div class="flex items-start gap-4 mb-4">
+                {% if panel.thumbnail_url %}
+                <img src="{{ panel.thumbnail_url }}" class="w-16 h-16 rounded-lg object-cover bg-slate-900">
+                {% else %}
+                <div class="w-16 h-16 rounded-lg bg-slate-700 flex items-center justify-center text-2xl">🎫</div>
+                {% endif %}
+                <div>
+                    <h4 class="font-bold text-lg text-white">{{ panel.title }}</h4>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs bg-slate-900 px-2 py-1 rounded text-slate-300 border border-slate-700">
+                            {{ panel.button_emoji }} {{ panel.button_text }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-4 border-t border-slate-700 flex gap-3">
+                <form action="/dashboard/{{ guild.id }}/publish/{{ panel.id }}" method="POST" class="flex-1">
+                    <button class="w-full py-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg font-bold text-sm transition">
+                        Update Discord
+                    </button>
+                </form>
+                <form action="/dashboard/{{ guild.id }}/delete/{{ panel.id }}" method="POST" onsubmit="return confirm('Delete?');">
+                    <button class="w-10 py-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white rounded-lg font-bold transition">🗑</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-slate-500 col-span-2 text-center py-10">No panels configured.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- EMOJI PICKER MODAL -->
+<div id="emoji-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
+    <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-2xl border border-slate-700 shadow-2xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-white">Select a Bot Emoji</h3>
+            <button type="button" onclick="closeEmojiPicker()" class="text-slate-400 hover:text-white">✕</button>
+        </div>
+        <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 max-h-96 overflow-y-auto custom-scrollbar p-2">
+            {% if bot_emojis %}
+                {% for emoji in bot_emojis %}
+                <button type="button" 
+                    onclick="selectEmoji('<{{ (emoji.animated and 'a' or '') }}:{{ emoji.name }}:{{ emoji.id }}>')"
+                    class="p-2 bg-slate-900 rounded hover:bg-slate-700 transition flex items-center justify-center"
+                    title="{{ emoji.name }}">
+                    <img src="https://cdn.discordapp.com/emojis/{{ emoji.id }}.png" class="w-8 h-8 object-contain">
+                </button>
+                {% endfor %}
+            {% else %}
+                <p class="col-span-full text-slate-500 text-center py-4">No custom emojis found in this bot.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+let currentEmojiInputId = null;
+
+function openEmojiPicker(inputId) {
+    currentEmojiInputId = inputId;
+    document.getElementById('emoji-modal').classList.remove('hidden');
+    document.getElementById('emoji-modal').classList.add('flex');
+}
+
+function closeEmojiPicker() {
+    document.getElementById('emoji-modal').classList.add('hidden');
+    document.getElementById('emoji-modal').classList.remove('flex');
+    currentEmojiInputId = null;
+}
+
+function selectEmoji(emojiString) {
+    if (currentEmojiInputId) {
+        document.getElementById(currentEmojiInputId).value = emojiString;
+    }
+    closeEmojiPicker();
+}
+
+function addDropdownRow() {
+    const container = document.getElementById('dropdown-container');
+    const div = document.createElement('div');
+    const uniqueId = "dd_emoji_" + Date.now(); // Unique ID for picker
+    div.className = "flex gap-3";
+    div.innerHTML = `
+        <div class="w-24 flex gap-1">
+            <input type="text" id="${uniqueId}" name="dd_emoji" placeholder="Emoji" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-center text-white focus:outline-none focus:border-blue-500">
+            <button type="button" onclick="openEmojiPicker('${uniqueId}')" class="bg-slate-700 hover:bg-slate-600 text-white px-2 rounded-lg">😀</button>
+        </div>
+        <div class="flex-1">
+            <input type="text" name="dd_label" placeholder="Category Name" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="px-4 text-red-400 hover:bg-red-500/10 rounded-lg transition">✕</button>
+    `;
+    container.appendChild(div);
+}
+</script>
+<style>
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+</style>
+{% endblock %}

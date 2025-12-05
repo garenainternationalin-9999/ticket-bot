@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+discord.py
+tortoise-orm
+aerich
+python-dotenv
+itsdangerous
+aiohttp
+jinja2
+python-multipart
+starlette
+httpx
+orjson
